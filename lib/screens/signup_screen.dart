@@ -58,6 +58,15 @@ class _SignupScreenState extends State<SignupScreen> {
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Please enter a valid email address';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16.0),
                     TextFormField(
@@ -67,6 +76,15 @@ class _SignupScreenState extends State<SignupScreen> {
                         labelText: 'Password',
                         prefixIcon: Icon(Icons.lock),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters long';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 24.0),
                     ElevatedButton(
