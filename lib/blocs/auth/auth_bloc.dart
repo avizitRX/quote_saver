@@ -25,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       if (firebaseUser != null) {
         emit(AuthAuthenticated(user: AppUser.fromFirebaseUser(firebaseUser)));
+        print('User logged in: ${firebaseUser.email}');
       } else {
         emit(
           const AuthError(
