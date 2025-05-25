@@ -9,6 +9,7 @@ import '../screens/global_feed_screen.dart';
 import '../screens/add_quote_screen.dart';
 import '../screens/signup_screen.dart';
 import '../screens/profile_screen.dart';
+import '../models/quote.dart';
 import '../widgets/scaffold_with_nav_bar.dart';
 
 class AppRouter {
@@ -53,7 +54,8 @@ class AppRouter {
         GoRoute(
           path: '/add-quote',
           name: 'add_quote',
-          builder: (context, state) => AddQuoteScreen(),
+          builder:
+              (context, state) => AddQuoteScreen(quote: state.extra as Quote?),
         ),
       ],
 
