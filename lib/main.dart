@@ -9,6 +9,7 @@ import 'config/app_router.dart';
 import 'blocs/auth/auth_bloc.dart';
 import 'blocs/auth/auth_event.dart';
 import 'data/repositories/auth_repository.dart';
+import 'package:quote_saver/config/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,7 +70,13 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MultiBlocProvider(
         providers: [BlocProvider<AuthBloc>.value(value: _authBloc)],
-        child: MaterialApp.router(title: 'Quote Saver', routerConfig: _router),
+        child: MaterialApp.router(
+          title: 'Quote Saver',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: ThemeMode.system,
+          routerConfig: _router,
+        ),
       ),
     );
   }
