@@ -6,10 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'config/app_router.dart';
+import 'config/theme.dart';
 import 'blocs/auth/auth_bloc.dart';
 import 'blocs/auth/auth_event.dart';
+import 'blocs/quote/quote_bloc.dart';
 import 'data/repositories/auth_repository.dart';
-import 'package:quote_saver/config/theme.dart';
+import 'data/repositories/quote_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,9 +37,11 @@ class _MyAppState extends State<MyApp> {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   late final AuthRepository _authRepository;
+  late final QuoteRepository _quoteRepository;
 
   // Blocs
   late final AuthBloc _authBloc;
+  late final QuoteBloc _quoteBloc;
 
   // GoRouter
   late final GoRouter _router;
@@ -46,8 +50,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _authRepository = AuthRepository(firebaseAuth: _firebaseAuth);
+    _quoteRepository = QuoteRepository(firestore: _firebaseFirestore);
 
     _authBloc = AuthBloc(authRepository: _authRepository);
+    _quoteBloc = QuoteBloc(quoteRepository: _quoteRepository);
 
     _router = AppRouter.createRouter(_authBloc); // Pass AuthBloc to AppRouter
 
@@ -58,6 +64,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     _authBloc.close();
+    _quoteBloc.close();
     _router.dispose();
     super.dispose();
   }
@@ -67,9 +74,13 @@ class _MyAppState extends State<MyApp> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AuthRepository>.value(value: _authRepository),
+        RepositoryProvider<QuoteRepository>.value(value: _quoteRepository),
       ],
       child: MultiBlocProvider(
-        providers: [BlocProvider<AuthBloc>.value(value: _authBloc)],
+        providers: [
+          BlocProvider<AuthBloc>.value(value: _authBloc),
+          BlocProvider<QuoteBloc>.value(value: _quoteBloc),
+        ],
         child: MaterialApp.router(
           title: 'Quote Saver',
           theme: lightTheme,

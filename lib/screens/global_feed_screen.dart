@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:intl/intl.dart';
+import 'package:quote_saver/widgets/animated_like_button.dart';
 import '../blocs/auth/auth_bloc.dart';
 import '../blocs/auth/auth_event.dart';
 import '../blocs/auth/auth_state.dart';
 import '../blocs/quote/quote_bloc.dart';
 import '../blocs/quote/quote_event.dart';
 import '../blocs/quote/quote_state.dart';
+import '../widgets/loading_indicator.dart';
 import '../widgets/message_dialog.dart';
+import '../models/quote.dart';
 
 class GlobalFeedScreen extends StatefulWidget {
   const GlobalFeedScreen({super.key});
@@ -57,8 +61,33 @@ class _GlobalFeedScreenState extends State<GlobalFeedScreen> {
     context.read<AuthBloc>().add(AuthLogoutRequested());
   }
 
+  void _toggleLike(Quote quote) {
+    final String? currentUserId =
+        fb_auth.FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) {
+      showMessageDialog(
+        context,
+        'Login Required',
+        'Please log in to like quotes.',
+      );
+      return;
+    }
+    if (quote.userId == currentUserId) {
+      showMessageDialog(
+        context,
+        'Cannot Like Own Quote',
+        'You cannot like your own quote.',
+      );
+      return;
+    }
+    context.read<QuoteBloc>().add(ToggleLikeQuote(quote: quote));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final String? currentUserId =
+        fb_auth.FirebaseAuth.instance.currentUser?.uid;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Global Feed'),
@@ -116,7 +145,7 @@ class _GlobalFeedScreenState extends State<GlobalFeedScreen> {
           builder: (context, quoteState) {
             if (quoteState.isLoadingGlobalQuotes &&
                 quoteState.globalQuotes.isEmpty) {
-              print("Loading...");
+              return const LoadingIndicator();
             } else if (quoteState.globalQuotes.isEmpty &&
                 !quoteState.isLoadingGlobalQuotes) {
               return Padding(
@@ -159,6 +188,8 @@ class _GlobalFeedScreenState extends State<GlobalFeedScreen> {
                 }
 
                 final quote = quoteState.globalQuotes[index];
+                final bool isLikedByUser = quote.likes.contains(currentUserId);
+                final bool isOwnQuote = quote.userId == currentUserId;
 
                 return Card(
                   elevation: 4,
@@ -242,6 +273,23 @@ class _GlobalFeedScreenState extends State<GlobalFeedScreen> {
                                   ),
                                 ),
                               ),
+                            const SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    // like button
+                                    AnimatedLikeButton(
+                                      isLiked: isLikedByUser,
+                                      likeCount: quote.likes.length,
+                                      isOwnQuote: isOwnQuote,
+                                      onPressed: () => _toggleLike(quote),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
