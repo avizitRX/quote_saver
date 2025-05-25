@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quote_saver/widgets/Xemail_field.dart';
 import 'package:quote_saver/widgets/Xpassword_field.dart';
 import '../blocs/auth/auth_bloc.dart';
 import '../blocs/auth/auth_event.dart';
 import '../blocs/auth/auth_state.dart';
+import '../widgets/loading_indicator.dart';
+import '../widgets/message_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -47,10 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             Future.microtask(() {
-              // TODO: Navigate to the home screen
+              context.go('/global-feed');
             });
           } else if (state is AuthError) {
-            // TODO: Show error dialog
+            showMessageDialog(context, 'Authentication Error', state.message);
           }
         },
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -92,7 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16.0),
                           TextButton(
-                            onPressed: () {}, // TODO: navigate to sign up page
+                            onPressed:
+                                state is AuthLoading
+                                    ? null
+                                    : () => context.go('/signup'),
                             child: const Text(
                               'Don\'t have an account? Sign Up',
                             ),
@@ -102,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                if (state is AuthLoading) const LoadingIndicator(),
               ],
             );
           },
