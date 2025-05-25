@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "916784240056",
+    "project_id": "quote-saver-bb905",
+    "storage_bucket": "quote-saver-bb905.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:916784240056:android:9fde0fb52626324a5a6b4d",
+        "android_client_info": {
+          "package_name": "com.avizitrx.quote_saver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrHRGUr2UZYww2vBm41AwlLu9fXfZFV_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

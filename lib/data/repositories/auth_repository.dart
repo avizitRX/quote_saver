@@ -5,6 +5,9 @@ class AuthRepository {
 
   AuthRepository({required this.firebaseAuth});
 
+  // listen to authentication state changes
+  Stream<User?> userChanges() => firebaseAuth.authStateChanges();
+
   // Sign in
   Future<User?> signIn({
     required String email,

@@ -8,9 +8,18 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
+  late StreamSubscription<fb_auth.User?> _userSubscription;
 
   AuthBloc({required this.authRepository}) : super(AuthInitial()) {
+    // Listen to Auth state changes
+    _userSubscription = authRepository.userChanges().listen((
+      fb_auth.User? firebaseUser,
+    ) {
+      add(AuthUserChanged(user: firebaseUser));
+    });
+
     on<AuthLoginRequested>(_onLoginRequested);
+    on<AuthUserChanged>(_onUserChanged);
   }
 
   Future<void> _onLoginRequested(
@@ -47,5 +56,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       emit(AuthError(message: errorMessage));
     }
+  }
+
+  void _onUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
+    if (event.user != null) {
+      emit(AuthAuthenticated(user: AppUser.fromFirebaseUser(event.user!)));
+    } else {
+      emit(AuthUnauthenticated());
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription.cancel();
+    return super.close();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -15,4 +16,13 @@ class AuthLoginRequested extends AuthEvent {
 
   @override
   List<Object> get props => [email, password];
+}
+
+class AuthUserChanged extends AuthEvent {
+  final fb_auth.User? user;
+
+  const AuthUserChanged({this.user});
+
+  @override
+  List<Object> get props => [user ?? 'null'];
 }
