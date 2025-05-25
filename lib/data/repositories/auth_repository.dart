@@ -23,4 +23,31 @@ class AuthRepository {
       throw Exception('An unexpected error occurred during sign-in: $e');
     }
   }
+
+  // Sign up
+  Future<User?> signUp({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final UserCredential userCredential = await firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      return userCredential.user;
+    } on FirebaseAuthException {
+      rethrow;
+    } catch (e) {
+      throw Exception('An unexpected error occurred during sign-up: $e');
+    }
+  }
+
+  // Sign out
+  Future<void> signOut() async {
+    try {
+      await firebaseAuth.signOut();
+    } on FirebaseAuthException {
+      rethrow;
+    } catch (e) {
+      throw Exception('An unexpected error occurred during sign-out: $e');
+    }
+  }
 }

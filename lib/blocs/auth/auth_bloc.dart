@@ -19,6 +19,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthLoginRequested>(_onLoginRequested);
+    on<AuthSignupRequested>(_onSignupRequested);
+    on<AuthLogoutRequested>(_onLogoutRequested);
     on<AuthUserChanged>(_onUserChanged);
   }
 
@@ -34,7 +36,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       if (firebaseUser != null) {
         emit(AuthAuthenticated(user: AppUser.fromFirebaseUser(firebaseUser)));
-        print('User logged in: ${firebaseUser.email}');
       } else {
         emit(
           const AuthError(
@@ -53,6 +54,54 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else if (e.code == 'invalid-email') {
           errorMessage = 'The email address is not valid.';
         }
+      }
+      emit(AuthError(message: errorMessage));
+    }
+  }
+
+  Future<void> _onSignupRequested(
+    AuthSignupRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      final fb_auth.User? firebaseUser = await authRepository.signUp(
+        email: event.email,
+        password: event.password,
+      );
+      if (firebaseUser != null) {
+        emit(AuthAuthenticated(user: AppUser.fromFirebaseUser(firebaseUser)));
+      } else {
+        emit(const AuthError(message: 'Signup failed. Please try again.'));
+      }
+    } catch (e) {
+      String errorMessage = 'An unknown error occurred during signup.';
+      if (e is fb_auth.FirebaseAuthException) {
+        errorMessage = e.message ?? errorMessage;
+        if (e.code == 'weak-password') {
+          errorMessage = 'The password provided is too weak.';
+        } else if (e.code == 'email-already-in-use') {
+          errorMessage = 'The account already exists for that email.';
+        } else if (e.code == 'invalid-email') {
+          errorMessage = 'The email address is not valid.';
+        }
+      }
+      emit(AuthError(message: errorMessage));
+    }
+  }
+
+  Future<void> _onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await authRepository.signOut();
+      emit(AuthUnauthenticated());
+    } catch (e) {
+      String errorMessage = 'An unknown error occurred during logout.';
+      if (e is fb_auth.FirebaseAuthException) {
+        errorMessage = e.message ?? errorMessage;
       }
       emit(AuthError(message: errorMessage));
     }

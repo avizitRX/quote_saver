@@ -18,6 +18,18 @@ class AuthLoginRequested extends AuthEvent {
   List<Object> get props => [email, password];
 }
 
+class AuthSignupRequested extends AuthEvent {
+  final String email;
+  final String password;
+
+  const AuthSignupRequested({required this.email, required this.password});
+
+  @override
+  List<Object> get props => [email, password];
+}
+
+class AuthLogoutRequested extends AuthEvent {}
+
 class AuthUserChanged extends AuthEvent {
   final fb_auth.User? user;
 
